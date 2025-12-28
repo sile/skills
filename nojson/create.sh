@@ -6,7 +6,7 @@ daberu -x clean-files
 
 cd ../../rust/nojson
 
-echo 'create skill files for this Rust crate' | \
+echo 'create skill files for this Rust crate and upload the final .skill file' | \
   daberu -k skill-creator \
     -r README.md \
     -r Cargo.toml \
