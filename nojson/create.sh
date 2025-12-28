@@ -4,7 +4,7 @@ set -eux
 
 daberu -x clean-files
 
-pushd ../../rust/nojson
+cd ../../rust/nojson
 
 echo 'create skill files for this Rust crate' | \
   daberu -k skill-creator \
@@ -22,4 +22,3 @@ echo 'create skill files for this Rust crate' | \
     -r tests/test_jsonc.rs \
     -r tests/test_parse.rs
 
-popd
