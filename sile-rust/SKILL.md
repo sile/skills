@@ -50,7 +50,7 @@ creating a crate and when reviewing an existing one.
 ## Rustdoc intra-doc links
 
 Rendered rustdoc displays the link *label*, not only the destination.
-Keep that label free of `crate::`, and free of `Self::` on public items.
+On public items, keep that label free of `crate::` and `Self::`.
 
 - When the item is not in the current module, put `crate::` in the
   explicit target, not in the label:
@@ -65,8 +65,8 @@ Keep that label free of `crate::`, and free of `Self::` on public items.
 - On public items, name the type instead of `Self`: write
   `` [`Builder::MAX`] ``, not `` [`Self::MAX`] ``. Callers write the
   type name; `Self::` reads as an impl-block leftover.
-- `Self::` is fine on `pub(crate)` and private items, which rustdoc
-  does not publish by default.
+- `Self::` and `crate::` in the label are fine on `pub(crate)` and
+  private items, which rustdoc does not publish by default.
 - An external crate path in the label (`std::…`, a dependency) is
   fine when the origin is useful.
 - Code samples in documentation still follow the import rule above;
