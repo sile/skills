@@ -1,6 +1,13 @@
 My coding agent skills
 ======================
 
+Skills
+------
+
+| Skill | Description |
+| ----- | ----------- |
+| [sile-rust](sile-rust/) | Personal Rust coding conventions |
+
 Install
 -------
 
