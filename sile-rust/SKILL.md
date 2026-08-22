@@ -29,7 +29,7 @@ creating a crate and when reviewing an existing one.
   - Do not remove `forbid(unsafe_code)` or propose `unsafe` code unless
     the user explicitly agrees to lift it.
 
-## Conventions
+## Error Handlings
 
 - Do not use `unwrap` or `unwrap_err`. Use `expect` or `expect_err` instead.
   - In documentation examples, prefer `?` wherever possible.
