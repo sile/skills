@@ -167,8 +167,10 @@ pattern.
 
 - since: 1.70 (`is_none_or` / `is_err_and`: 1.82)
 - edition: any
-- replaces: `opt.map(|x| pred(x)).unwrap_or(false)`,
+- replaces: `opt.map(|x| pred(x)).unwrap_or(false)` → `is_some_and`,
+  `opt.map(|x| pred(x)).unwrap_or(true)` → `is_none_or`,
   `matches!(opt, Some(x) if pred(x))` used only as a bool
+- look for: `.map(...).unwrap_or(false)`, `.map(...).unwrap_or(true)`
 - clippy: `clippy::manual_is_variant_and`
 - when not: the `map`/`match` is clearer because the inner value
   is also used
@@ -246,9 +248,10 @@ pattern.
 - edition: any
 - replaces: `assert!(matches!(...))` / `debug_assert!(matches!(...))`
 - look for: `assert!(matches!`, `debug_assert!(matches!`
-- when not: not in the prelude — import from `core` or `std`. Skip
-  if a third-party `assert_matches` is already in use (name clash
-  is why they are not prelude)
+- when not: not in the prelude — `use core::assert_matches;`
+  (not `use core::assert_matches::assert_matches`). Skip if a
+  third-party `assert_matches` is already in use (name clash is
+  why they are not prelude)
 
 ### `{integer}::format_into`
 
