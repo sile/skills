@@ -67,6 +67,11 @@ toward CI may be cheap. Do not treat CI as the contract.
    Ignore nightly and unstable features.
 5. Print the report and stop. Do not apply changes.
 
+Do not compile throwaway snippets in the crate tree. `rustc -`
+(stdin) writes `./rust_out` by default. If a snippet must be
+compiled, send the binary to a temp path (`-o` / `--out-dir`)
+and delete it; never leave `rust_out` or similar artifacts.
+
 ## Report
 
 Each finding: path, current pattern, suggested replacement, `since`,

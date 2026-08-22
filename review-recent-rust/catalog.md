@@ -248,10 +248,12 @@ pattern.
 - edition: any
 - replaces: `assert!(matches!(...))` / `debug_assert!(matches!(...))`
 - look for: `assert!(matches!`, `debug_assert!(matches!`
-- when not: not in the prelude — `use core::assert_matches;`
-  (not `use core::assert_matches::assert_matches`). Skip if a
-  third-party `assert_matches` is already in use (name clash is
-  why they are not prelude)
+- when not: not in the prelude. Import the *module*:
+  `use std::assert_matches;` (not
+  `use std::assert_matches::assert_matches`). Use
+  `use core::assert_matches;` only if the crate is `no_std`.
+  Skip if a third-party `assert_matches` is already in use
+  (name clash is why they are not prelude)
 
 ### `{integer}::format_into`
 
