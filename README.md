@@ -7,6 +7,7 @@ Skills
 | Skill | Description |
 | ----- | ----------- |
 | [sile-rust](sile-rust/) | Personal Rust coding conventions |
+| [review-recent-rust](review-recent-rust/) | Audit stable Rust features against MSRV |
 
 Install
 -------
