@@ -1,7 +1,9 @@
-skills
-=======
+My coding agent skills
+======================
 
 References
 ----------
 
-- [anthropics/skills](https://github.com/anthropics/skill)
+- [Agent Skills](https://agentskills.io)
+- [Specification](https://agentskills.io/specification)
+- [gh skill](https://cli.github.com/manual/gh_skill)
