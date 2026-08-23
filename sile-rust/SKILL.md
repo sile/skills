@@ -17,15 +17,15 @@ creating a crate and when reviewing an existing one.
 - Set `edition = "2024"` in Cargo.toml (workspace root or each crate).
 - Use the stable toolchain only. Do not use nightly, `#![feature(...)]`,
   or nightly-only Cargo features.
-- At the top of each crate root (`lib.rs` and/or `main.rs`):
+- On the library crate root (`src/lib.rs`):
 
   ```rust
   #![warn(missing_docs)]
   #![forbid(unsafe_code)]
   ```
 
-  - Write these inner attributes in every crate in a workspace. Do not
-    fold them into Cargo.toml `[lints]`.
+  - Write these inner attributes in every library crate in a
+    workspace. Do not fold them into Cargo.toml `[lints]`.
   - Do not remove `forbid(unsafe_code)` or propose `unsafe` code unless
     the user explicitly agrees to lift it.
 
