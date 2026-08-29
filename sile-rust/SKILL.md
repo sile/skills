@@ -29,6 +29,40 @@ creating a crate and when reviewing an existing one.
   - Do not remove `forbid(unsafe_code)` or propose `unsafe` code unless
     the user explicitly agrees to lift it.
 
+## Module layout
+
+Start with a **flat** `src/` layout. Do not introduce directory
+modules (`src/foo/`) or nested `mod` trees unless the user asks for
+them, or unless keeping everything flat would make the code harder to
+follow than a hierarchy (for example, many large sibling files that
+share a clear boundary).
+
+- Prefer sibling files with a common prefix:
+  `terminal.rs`, `terminal_emu.rs`, `terminal_buffer.rs`.
+- Do not use `mod.rs`. Use `<module>.rs`; if a directory module is
+  unavoidable, use `<module>.rs` plus `<module>/<submodule>.rs`.
+- Do not create `src/<module>/` subdirectories on your own initiative.
+
+### `src/lib.rs`
+
+- Declare modules at the crate root (`mod pty;`, `mod terminal;`, …).
+- **Re-export** the public API from `lib.rs` so callers use
+  `my_crate::TerminalState`, not `my_crate::terminal::TerminalState`.
+- Keep implementation modules private; only types and functions meant
+  for callers appear in `pub use`.
+
+### When to depart from flat layout
+
+Hierarchy is allowed when:
+
+1. The user explicitly asks to reorganize into directories or nested
+   modules, or
+2. Flat files would be worse than a hierarchy (size, cohesion, or
+   navigation cost)—and the reason is obvious from the code.
+
+When splitting, still avoid `mod.rs`; use `<module>.rs` plus
+`<module>/<submodule>.rs` only if a directory is truly needed.
+
 ## Error Handlings
 
 - Do not use `unwrap` or `unwrap_err`. Use `expect` or `expect_err` instead.
