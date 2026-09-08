@@ -91,7 +91,7 @@ On public items, keep that label free of `crate::` and `Self::`.
 
   ```markdown
   [`Widget`](crate::Widget)
-  [`Builder::finish`](crate::Builder::finish)
+  [`Builder::finish()`](crate::Builder::finish)
   [`docs::guide`](crate::docs::guide)
   ```
 
@@ -105,3 +105,18 @@ On public items, keep that label free of `crate::` and `Self::`.
   fine when the origin is useful.
 - Code samples in documentation still follow the import rule above;
   that rule is about source fragments, not link labels.
+- For a method or function, always write the `()` so the reader can
+  tell it is a callable item and not a type or constant: `` [`value()`](Self::value) ``,
+  not `` [`value`](Self::value) ``.
+
+## Doc comments
+
+Describe the *current* design. A first-time reader has no knowledge of the
+commit history, branch naming, or previous versions, so the doc must not rely
+on any of those.
+
+- Say what the item does now. Avoid describing it by contrast with an earlier
+  state (e.g. 'no longer …', 'used to be …', 'previously …', 'this used to').
+  Such wording only makes sense to someone who knows the old API, so it
+  communicates nothing to a new reader. State the behavior directly instead.
+- Do not restate a fact the same doc already established one line above.
