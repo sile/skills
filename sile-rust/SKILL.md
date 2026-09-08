@@ -29,6 +29,23 @@ creating a crate and when reviewing an existing one.
   - Do not remove `forbid(unsafe_code)` or propose `unsafe` code unless
     the user explicitly agrees to lift it.
 
+## Cargo config
+
+For repositories worked on by an agent, add a repository-level
+`.cargo/config.toml` to quiet cargo's success noise:
+
+```toml
+[term]
+quiet = true
+```
+
+This strips only per-test boilerplate (`running N tests`,
+`test foo::bar ... ok`) from `cargo test` and similar commands. It keeps
+everything useful: failures (`test result: FAILED`, `panicked at ...`),
+warnings, and `cargo fmt --check` diffs are still shown in full. The config
+is a default, so a single command can opt back in with `cargo test -v` or
+`CARGO_TERM_QUIET=false cargo test`.
+
 ## Module layout
 
 Start with a **flat** `src/` layout. Do not introduce directory
