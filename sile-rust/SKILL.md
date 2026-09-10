@@ -57,11 +57,8 @@ share a clear boundary).
 - Prefer sibling files with a common prefix:
   `terminal.rs`, `terminal_emu.rs`, `terminal_buffer.rs`.
 - Do not use `mod.rs`. Use `<module>.rs`; if a directory module is
-  unavoidable, use `<module>.rs` plus `<module>/<submodule>.rs`.
-  - `tests/` is an exception: use `mod.rs` there
-    (`tests/<name>/mod.rs`). Cargo compiles every file directly under
-    `tests/` as its own test target, so a helper shared by several
-    test files has to live in a subdirectory.
+  unavoidable, use `<module>.rs` plus `<module>/<submodule>.rs`
+  (`tests/` is an exception; see the Tests section).
 - Do not create `src/<module>/` subdirectories on your own initiative.
 
 ### `src/lib.rs`
@@ -81,9 +78,6 @@ Hierarchy is allowed when:
 2. Flat files would be worse than a hierarchy (size, cohesion, or
    navigation cost)—and the reason is obvious from the code.
 
-When splitting, still avoid `mod.rs`; use `<module>.rs` plus
-`<module>/<submodule>.rs` only if a directory is truly needed.
-
 ## Tests
 
 - Prefer `tests/` over `#[cfg(test)] mod tests` in `src/`, so a test
@@ -93,8 +87,10 @@ When splitting, still avoid `mod.rs`; use `<module>.rs` plus
 - Name a test file after what it covers (`tests/terminal.rs`,
   `tests/style.rs`), not after the test style (so there is no
   `tests/pbt.rs`).
-- Share a helper used by several test files via a subdirectory of
-  `tests/`; see Module layout.
+- Put a helper shared by several test files in a subdirectory of
+  `tests/` and use `mod.rs` there (`tests/<name>/mod.rs`): Cargo
+  compiles every file directly under `tests/` as its own test target,
+  so the helper cannot be `tests/<name>.rs`.
 - Prefer a property-based test to an example-based one whenever the
   requirement can be stated as a property ("for any input ..., ..."),
   and keep an example-based test for what a property cannot express (a
