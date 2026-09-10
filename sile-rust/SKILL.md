@@ -58,6 +58,10 @@ share a clear boundary).
   `terminal.rs`, `terminal_emu.rs`, `terminal_buffer.rs`.
 - Do not use `mod.rs`. Use `<module>.rs`; if a directory module is
   unavoidable, use `<module>.rs` plus `<module>/<submodule>.rs`.
+  - `tests/` is an exception: use `mod.rs` there
+    (`tests/<name>/mod.rs`). Cargo compiles every file directly under
+    `tests/` as its own test target, so a helper shared by several
+    test files has to live in a subdirectory.
 - Do not create `src/<module>/` subdirectories on your own initiative.
 
 ### `src/lib.rs`
@@ -79,6 +83,24 @@ Hierarchy is allowed when:
 
 When splitting, still avoid `mod.rs`; use `<module>.rs` plus
 `<module>/<submodule>.rs` only if a directory is truly needed.
+
+## Tests
+
+- Prefer `tests/` over `#[cfg(test)] mod tests` in `src/`, so a test
+  exercises the API the way a caller sees it.
+- Keep a test in `src/` only when it needs a private item (a private
+  function, a private field, or a private module).
+- Name a test file after what it covers (`tests/terminal.rs`,
+  `tests/style.rs`), not after the test style (so there is no
+  `tests/pbt.rs`).
+- Share a helper used by several test files via a subdirectory of
+  `tests/`; see Module layout.
+- Prefer a property-based test to an example-based one whenever the
+  requirement can be stated as a property ("for any input ..., ..."),
+  and keep an example-based test for what a property cannot express (a
+  crash reproduced from a reported seed, an exact message, a worked
+  example).
+- Write properties with `noprop`; see the `noprop` skill.
 
 ## Error Handlings
 
