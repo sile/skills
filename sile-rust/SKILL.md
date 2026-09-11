@@ -117,6 +117,22 @@ policy or constraint on them.
 
 See [api-design.md](api-design.md) for worked examples.
 
+## Lints
+
+- Suppress a lint with `#[expect(...)]`, not `#[allow(...)]`.
+  - `expect` states that the lint *does* fire here. When the code changes
+    so it no longer fires, `unfulfilled_lint_expectations` reports the now
+    stale `expect`; `allow` would stay silent forever, so a suppression
+    outlives its reason.
+  - Give a `reason = "..."` so the suppression explains itself.
+
+  ```rust
+  #[expect(
+      clippy::should_implement_trait,
+      reason = "the type is a stateful parser, not an iterator"
+  )]
+  ```
+
 ## Error Handlings
 
 - Do not use `unwrap` or `unwrap_err`. Use `expect` or `expect_err` instead.
