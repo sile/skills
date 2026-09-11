@@ -1,0 +1,96 @@
+# API design — worked examples
+
+Companion to the API design section of [SKILL.md](SKILL.md). The
+patterns below are written as concepts; the names are placeholders, not
+imports from any crate.
+
+## Do not impose an implicit policy
+
+A library is composed by its callers, so a policy baked into it decides
+for code it cannot see. The clearest case is a capacity limit.
+
+**Imposing a policy.** A byte stream owns a constant such as
+`MAX_PENDING_BYTES`. Its `feed()` appends the new bytes and, when the
+buffer grows past the constant, silently drops the oldest bytes. The
+limit encodes one answer—"too much input"—for every caller, and the
+drop is invisible: the caller cannot tell a truncated paste from a
+complete one.
+
+**Exposing mechanism.** The same stream keeps no constant. `feed()`
+only appends. Alongside it, two methods publish the state and one step
+of the mechanism:
+
+- a query for how much is currently buffered,
+- an operation that discards up to `n` bytes from the front and reports
+  how many it actually discarded.
+
+The caller reads the query and decides. A stream processor may accept a
+large buffer; an interactive terminal may treat the same size as a
+freeze worth dropping. Both are legitimate, and only the caller knows
+which it is. The limit and the drop policy live where that knowledge
+is.
+
+The caller now writes a few extra lines. Those lines *are* the policy,
+in the one place it can be reviewed and changed. Extra caller code is a
+cost; a forced policy is a defect.
+
+## Do not hide a decision with a user-visible trade-off
+
+A timeout, a retry count, a buffer cap, and an automatic recovery all
+pick a side of a trade-off the user will feel. Keep them out of the
+mechanism, or make the choice explicit.
+
+**Hiding it.** A parser that reads key sequences notices that a single
+ESC byte is ambiguous: it may be an Escape key pressed, or the start of
+a longer sequence. So the parser waits a fixed number of milliseconds
+before treating it as Escape. The value is a constant inside the
+parser, the caller cannot change it, and the two failure modes are
+invisible: too short and a fast arrow-key press degrades into stray
+`[` and `A`; too long and a solo Escape is reported as Alt+something.
+
+**Exposing it.** The parser reports two facts and one operation:
+whether a single ESC byte is currently uncommitted, and a way to
+commit it. The caller then chooses whether to wait, for how long, and
+what to do when the wait ends. The core stays free of I/O and of time,
+which is exactly what lets it stay testable and reusable.
+
+A default is still allowed—but only when it is explicit, documented,
+and overridable. The problem is never that a default exists; it is that
+the caller cannot see it or change it.
+
+## Do not encode a policy in a name
+
+A name is documentation that cannot be corrected later. Name the
+observable fact, not the mechanism the library happens to use.
+
+- State the condition: "an uncommitted escape is pending."
+- Do not state the mechanism: "the escape timeout has expired."
+
+The second name freezes one implementation into the API. The first
+leaves the caller free to wait, to poll, or to commit immediately, and
+still reads correctly if the mechanism changes.
+
+This is the naming face of the same rule: the library reports what is
+true, the caller decides what to do about it.
+
+## Where this matters
+
+The pull toward integrated defaults grows with the layer. A convenience
+layer built for end users can reasonably ship a timeout, a retry, or a
+sensible cap; that is what makes it convenient. The rule above applies
+most strongly to a low-level, foundational layer: the more code sits on
+top of it, the more freedom and choice it must preserve. A foundation
+that hides a policy restricts every layer above it at once.
+
+## Two questions
+
+Before adding a default, a limit, or a recovery path to a low-level
+type, ask:
+
+1. Can the caller see it? (Is the effect observable, or does it happen
+   silently on the caller's behalf?)
+2. Can the caller override it? (Is there a public way to change or
+   bypass the choice?)
+
+If both answers are no, the library has taken a decision that belongs
+to the caller.

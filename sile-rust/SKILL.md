@@ -98,6 +98,25 @@ Hierarchy is allowed when:
   example).
 - Write properties with `noprop`; see the `noprop` skill.
 
+## API design
+
+A library is composed by its callers. Do not let it impose an implicit
+policy or constraint on them.
+
+- Expose mechanism and state; leave policy to the caller. Prefer a query
+  that reports the current state plus an operation that performs one step
+  over a built-in threshold that acts on the caller's behalf.
+- Never hide a decision with a user-visible trade-off (a timeout, a retry,
+  a buffer cap, an automatic recovery). Provide a default only if it is
+  explicit, documented, and overridable.
+- This matters most for a low-level, foundational layer: the more code
+  sits on top of it, the more freedom and choice it must keep. A utility
+  convenience layer may offer integrated defaults; a foundation must not.
+- Extra caller-side code is acceptable when the alternative is a policy
+  the caller cannot see or override.
+
+See [api-design.md](api-design.md) for worked examples.
+
 ## Error Handlings
 
 - Do not use `unwrap` or `unwrap_err`. Use `expect` or `expect_err` instead.
