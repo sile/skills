@@ -1,8 +1,30 @@
 # API design — worked examples
 
-Companion to the API design section of [SKILL.md](SKILL.md). The
-patterns below are written as concepts; the names are placeholders, not
-imports from any crate.
+Companion to the API design section of [SKILL.md](SKILL.md).
+
+The examples come from low-level Unix TUI libraries—the kind that read
+a terminal's bytes and write rendered frames—but the patterns apply to
+any foundational layer: a codec, a parser, a buffer, a transport.
+
+They are written as concepts. The names shown are placeholders, not
+imports from a real crate; a sketch in each example sets the scene.
+
+The general shape, before the details:
+
+```rust
+// A foundational layer that hides its policy.
+let stream = ByteStream::new();     // internally caps at some size
+stream.feed(&bytes);                // silently drops the oldest bytes
+// The caller sees the data; it cannot see the cap or the loss.
+
+// A foundational layer that exposes mechanism and state.
+let stream = ByteStream::new();     // no cap
+stream.feed(&bytes);                // appends
+if stream.buffered_bytes() > limit {
+    stream.discard_buffered_bytes(stream.buffered_bytes() - limit);
+}
+// The caller states the policy; the library carries it out.
+```
 
 ## Do not impose an implicit policy
 
