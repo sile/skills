@@ -114,7 +114,7 @@ policy or constraint on them.
   convenience layer may offer integrated defaults; a foundation must not.
 - Extra caller-side code is acceptable when the alternative is a policy
   the caller cannot see or override.
-- Do not mark a public enum with `#[non_exhaustive]`. A caller that
+- Do not mark an enum with `#[non_exhaustive]`. A caller that
   enumerates every variant should get a compile error when a new variant
   is added, so the new case is handled rather than silently falling
   through a `_ => ...` arm.
