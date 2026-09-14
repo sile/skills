@@ -26,8 +26,27 @@ creating a crate and when reviewing an existing one.
 
   - Write these inner attributes in every library crate in a
     workspace. Do not fold them into Cargo.toml `[lints]`.
-  - Do not remove `forbid(unsafe_code)` or propose `unsafe` code unless
-    the user explicitly agrees to lift it.
+  - Default to `forbid(unsafe_code)`: it cannot be overridden, so an
+    accidental `unsafe` cannot slip through. Do not propose `unsafe`
+    code unless the user explicitly agrees to lift it.
+  - Some crates genuinely cannot avoid `unsafe` (for example, calling
+    `libc` directly). For such a crate only, relax the attribute to
+    `#![deny(unsafe_code)]` and document per crate why the relaxation
+    is needed. A `deny` crate marks each surviving `unsafe` site with
+    `#[expect(unsafe_code, reason = "...")]` (see the Lints section),
+    so every exception is visible in review. Keep the relaxation to
+    the crate that needs it; do not widen it.
+
+- Skip `#![warn(missing_docs)]` on a **binary** crate (a crate root
+  with only a `main`). It is a convenience hint for a reusable public
+  API; for an application nobody links, documenting every internal
+  item is busywork with no caller to benefit.
+  - The `unsafe_code` attribute still applies there, at the same
+    strictness as a library: `forbid` by default, `deny` only for the
+    rare binary that cannot avoid `unsafe`.
+  - This is per crate. In a workspace with both a library and a
+    binary, the library root gets `warn(missing_docs)` and the binary
+    root omits it; both get the `unsafe_code` attribute.
 
 ## Cargo config
 
@@ -135,6 +154,20 @@ See [api-design.md](api-design.md) for worked examples.
       clippy::should_implement_trait,
       reason = "the type is a stateful parser, not an iterator"
   )]
+  ```
+
+- The same form covers a crate relaxed to `deny(unsafe_code)` (see the
+  Project defaults section). Mark each `unsafe` site on the function
+  that contains it:
+
+  ```rust
+  #[expect(
+      unsafe_code,
+      reason = "libc::kill needs an unsafe call to probe a pid"
+  )]
+  fn probe_pid(pid: i32) -> bool {
+      unsafe { libc::kill(pid, 0) == 0 }
+  }
   ```
 
 ## Error Handlings
