@@ -129,9 +129,10 @@ Hierarchy is allowed when:
 A library is composed by its callers. Do not let it impose an implicit
 policy or constraint on them.
 
-- Expose mechanism and state; leave policy to the caller. Prefer a query
-  that reports the current state plus an operation that performs one step
-  over a built-in threshold that acts on the caller's behalf.
+- Expose mechanism and state; leave policy to the caller. Publish a way
+  to observe the condition the caller must decide on, and a way to carry
+  out that decision in one step. The shape is the layer's own business;
+  the rule is that the caller decides, not the library.
 - Never hide a decision with a user-visible trade-off (a timeout, a retry,
   a buffer cap, an automatic recovery). Provide a default only if it is
   explicit, documented, and overridable.

@@ -18,11 +18,10 @@ stream.feed(&bytes);                // silently drops the oldest bytes
 // The caller sees the data; it cannot see the cap or the loss.
 
 // A foundational layer that exposes mechanism and state.
-let stream = ByteStream::new();     // no cap
+let stream = ByteStream::new();     // no cap of its own
 stream.feed(&bytes);                // appends
-if stream.buffered_bytes() > limit {
-    stream.discard_buffered_bytes(stream.buffered_bytes() - limit);
-}
+let limit = 1 << 20;                // the app's limit, not the library's
+stream.trim_to(limit);              // carries out the app's choice
 // The caller states the policy; the library carries it out.
 ```
 
@@ -39,12 +38,16 @@ drop is invisible: the caller cannot tell a truncated paste from a
 complete one.
 
 **Exposing mechanism.** The same stream keeps no constant. `feed()`
-only appends. Alongside it, two methods publish the state and one step
-of the mechanism:
+only appends. Alongside it, the type publishes two things:
 
-- a query for how much is currently buffered,
-- an operation that discards up to `n` bytes from the front and reports
-  how many it actually discarded.
+- a query that reports the state the caller needs in order to decide,
+- an operation that carries out the caller's decision in one step.
+
+How those are spelled is the layer's own business. A query might report
+how much is buffered, and the operation might discard down to a length
+the caller names. Another layer might offer no drop path at all and
+instead report a failure the caller handles. What matters is that the
+caller can observe the condition and act on it.
 
 The caller reads the query and decides. A stream processor may accept a
 large buffer; an interactive terminal may treat the same size as a
@@ -55,6 +58,13 @@ is.
 The caller now writes a few extra lines. Those lines *are* the policy,
 in the one place it can be reviewed and changed. Extra caller code is a
 cost; a forced policy is a defect.
+
+The rule is about who decides, not about method count. A query and an
+operation satisfy it; so does a single operation that takes the caller's
+bound as an argument ("keep at most this much"), which folds the
+comparison into the layer without moving the decision there. Reach for
+the shape that reads best at the call site. What a layer must not do is
+choose the bound for the caller.
 
 ## Do not hide a decision with a user-visible trade-off
 
