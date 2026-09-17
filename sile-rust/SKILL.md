@@ -32,10 +32,17 @@ creating a crate and when reviewing an existing one.
   - Some crates genuinely cannot avoid `unsafe` (for example, calling
     `libc` directly). For such a crate only, relax the attribute to
     `#![deny(unsafe_code)]` and document per crate why the relaxation
-    is needed. A `deny` crate marks each surviving `unsafe` site with
+    is needed. A `deny` crate marks the surviving `unsafe` with
     `#[expect(unsafe_code, reason = "...")]` (see the Lints section),
     so every exception is visible in review. Keep the relaxation to
     the crate that needs it; do not widen it.
+  - Prefer the narrowest scope that still says something useful. When
+    one module holds all the FFI (say, a `sys` module that wraps
+    `libc`), a single file-level `#[expect]` on that module is the
+    right granularity: the reason is the same at every site, and
+    repeating it per function adds noise without adding review signal.
+    Narrow it to one function only when that lets you say something
+    the module-level reason cannot.
 
 - Skip `#![warn(missing_docs)]` on a **binary** crate (a crate root
   with only a `main`). It is a convenience hint for a reusable public
@@ -157,8 +164,8 @@ See [api-design.md](api-design.md) for worked examples.
   ```
 
 - The same form covers a crate relaxed to `deny(unsafe_code)` (see the
-  Project defaults section). Mark each `unsafe` site on the function
-  that contains it:
+  Project defaults section). A direct `libc` call is the ordinary
+  case. Mark the smallest item that owns the reason:
 
   ```rust
   #[expect(
@@ -169,6 +176,27 @@ See [api-design.md](api-design.md) for worked examples.
       unsafe { libc::kill(pid, 0) == 0 }
   }
   ```
+
+  When the `unsafe` is spread across one module, put the `expect` in
+  that module's file header as an inner attribute instead:
+
+  ```rust
+  // src/sys.rs
+
+  #![expect(
+      unsafe_code,
+      reason = "terminal mode control and SIGWINCH handling go through libc"
+  )]
+  ```
+
+  `deny(unsafe_code)` still makes the compiler list every site, so one
+  file-level `expect` does not hide where the `unsafe` is. Leave the
+  `unsafe` blocks themselves as small as possible (wrap the `libc` call,
+  not the surrounding logic), so each one is easy to audit.
+
+  Use the per-function form when only one function needs it. Keep the
+  `expect` out of `lib.rs` when the `unsafe` belongs to one
+  implementation module.
 
 ## Error Handlings
 
