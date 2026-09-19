@@ -117,6 +117,21 @@ Hierarchy is allowed when:
   `tests/` and use `mod.rs` there (`tests/<name>/mod.rs`): Cargo
   compiles every file directly under `tests/` as its own test target,
   so the helper cannot be `tests/<name>.rs`.
+- Keep helper modules flat, one per subject, and name each after that
+  subject (`tests/helpers_foo/mod.rs`, `tests/helpers_bar/mod.rs`).
+  Grouping them under a single parent
+  (`mod helpers { mod foo; mod bar; }`) looks tidier, but a test file
+  can only declare the whole parent module: `mod helpers;` pulls in
+  every submodule, so a test file that needs one helper would also
+  build the others. A sibling module per subject lets each test file
+  declare exactly the helpers it uses.
+- Share a helper between test files only when more than one file
+  actually needs it. A helper used by a single file belongs in that
+  file, and a small amount of repetition across test files is fine:
+  prefer redefining something locally over forcing it into an existing
+  helper module whose name no longer fits. Factor it out into
+  `tests/<name>/mod.rs` once the same need shows up often enough that
+  the duplication starts to cost more than the indirection.
 - Prefer a property-based test to an example-based one whenever the
   requirement can be stated as a property ("for any input ..., ..."),
   and keep an example-based test for what a property cannot express (a
