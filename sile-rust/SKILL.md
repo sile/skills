@@ -36,6 +36,12 @@ creating a crate and when reviewing an existing one.
     `#[expect(unsafe_code, reason = "...")]` (see the Lints section),
     so every exception is visible in review. Keep the relaxation to
     the crate that needs it; do not widen it.
+  - The relaxation is per crate, so a project can legitimately have a
+    `forbid(unsafe_code)` library next to a `deny(unsafe_code)` binary
+    that wraps `libc`. Relax only the crate that needs the `unsafe`;
+    the library keeps `forbid`, which is why the two attributes can
+    differ within one project. Do not raise the library to `deny` to
+    "match" the binary.
   - Prefer the narrowest scope that still says something useful. When
     one module holds all the FFI (say, a `sys` module that wraps
     `libc`), a single file-level `#[expect]` on that module is the
@@ -224,6 +230,15 @@ See [api-design.md](api-design.md) for worked examples.
 - `use` is only for `std` (including `core` and `alloc`) and items in
   the current crate (`crate`, `super`, `self`, and local `mod`s). Refer
   to other crates with fully qualified paths (e.g. `other_crate::Widget`).
+  - "Current crate" means the compiling crate root, not the project
+    directory. In a project with both `src/lib.rs` and `src/main.rs`,
+    the binary is a separate crate from the library, so it names the
+    library in full (`my_crate::Widget`), exactly like a dependency.
+    The same holds for `tests/`, `examples/`, and `benches/`, which
+    Cargo compiles as their own crates. A project's own library is not
+    special: `use my_crate::Widget;` in a binary or a test is the same
+    mistake as `use other_crate::Widget;`. Only `use crate::…` and
+    `use super::…` reach items in the crate being compiled.
   - Traits are an exception: `use some_crate::SomeTrait;` is allowed so
     trait methods can be called as methods.
   - Rationale: a code fragment should show where each item comes from
