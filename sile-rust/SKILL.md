@@ -169,6 +169,21 @@ policy or constraint on them.
 
 See [api-design.md](api-design.md) for worked examples.
 
+## TUI binary
+
+A crate whose product is an interactive terminal UI is a TUI binary.
+
+- Build it on `tuinix`, which owns the terminal driver, the input
+  decoder, and the frame model. Do not reach for `libc` and an escape
+  sequence table directly.
+- Keep the drawing logic free of I/O so it can be unit-tested, and
+  leave the terminal edge (`tuinix` calls, argument parsing, the poll
+  loop) in `main`.
+- Cover the binary end to end by driving it behind a PTY with
+  `termnix`, not by unit-testing the edges `main` wires up.
+
+See [tui.md](tui.md) for worked examples.
+
 ## Lints
 
 - Suppress a lint with `#[expect(...)]`, not `#[allow(...)]`.
