@@ -162,6 +162,13 @@ policy or constraint on them.
   convenience layer may offer integrated defaults; a foundation must not.
 - Extra caller-side code is acceptable when the alternative is a policy
   the caller cannot see or override.
+- Take a function parameter of a bound-carrying type as a named type
+  parameter (`fn f<F: Fn()>`, or a `where` clause), not as an
+  argument-position `impl Trait` (`fn f(cb: impl Fn())`). APIT hides the
+  type from the caller: it cannot name or turbofish the parameter, cannot
+  spell a return type that depends on it, and cannot use the item as a
+  function pointer. A named parameter is also where the crate states its
+  bounds, so keeping one form everywhere reads consistently.
 - Do not mark an enum with `#[non_exhaustive]`. A caller that
   enumerates every variant should get a compile error when a new variant
   is added, so the new case is handled rather than silently falling
