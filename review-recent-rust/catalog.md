@@ -1,6 +1,6 @@
 # Feature catalog
 
-Last reviewed: 2026-08-22 against **Rust 1.98.0** (current stable, 2026-08-20).
+Last reviewed: 2026-10-14 against **Rust 1.99.0** (current stable, 2026-10-01).
 
 Hand-maintained list of stable features that change how code is
 written. Not a changelog. Skip pre-1.70 items that clippy already
@@ -183,6 +183,24 @@ pattern.
 - clippy: `clippy::manual_inspect`
 - when not: the closure must transform the value
 
+### `String::from_utf8_lossy_owned` / `string::FromUtf8Error::into_utf8_lossy`
+
+- since: 1.99
+- edition: any
+- replaces: `String::from_utf8_lossy(&v).into_owned()` — and the
+  `Cow` round-trip it implies — when the `Vec<u8>` is owned and no
+  longer needed. `into_utf8_lossy` is the same idea for an owned
+  `FromUtf8Error`: it replaces
+  `String::from_utf8_lossy(e.as_bytes()).into_owned()`
+- look for: `from_utf8_lossy(&`, `from_utf8_lossy(` fed by an
+  owned `Vec<u8>`, `from_utf8_lossy` applied to `e.as_bytes()` /
+  `err.as_bytes()` after a `from_utf8` failure
+- when not: the `Vec` is borrowed elsewhere, or `from_utf8_lossy`
+  is already called on a slice. The error must be kept to report
+  `valid_up_to()`, or it is borrowed rather than owned. Neither
+  function guarantees reuse of the original allocation, so they
+  are not zero-copy APIs
+
 ### `std::ptr::from_ref` / `from_mut`
 
 - since: 1.76
@@ -264,6 +282,10 @@ pattern.
 - look for: `itoa` in Cargo.toml, `itoa::Buffer`
 - when not: formatting goes through `fmt::Write` / `format!` and
   is not a hot path
+- also: the buffer type is re-exported as `std::fmt::NumBuffer`
+  (1.99). It was previously reachable only through `core::fmt`, so
+  code outside `no_std` can now name the type without a `core`
+  path
 
 ### `{float}::algebraic_{add,sub,mul,div,rem}`
 
