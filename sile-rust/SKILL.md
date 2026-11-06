@@ -144,6 +144,29 @@ Hierarchy is allowed when:
   crash reproduced from a reported seed, an exact message, a worked
   example).
 - Write properties with `noprop`; see the `noprop` skill.
+- When a feature is removed, do not add a test that asserts the removed
+  behaviour is gone. Delete the tests that covered it and replace them
+  with tests of what the code does now.
+  - A test that pins an absence pins a non-contract. It states something
+    about a path nothing is expected to take, so it passes for the wrong
+    reason -- a catch-all arm, a branch that no longer exists -- and goes
+    on passing when a later refactor moves the path somewhere else.
+  - It also freezes the decision that was just reversed. If the feature
+    comes back, the test asserting its absence has to be deleted first,
+    so the reminder of a past choice becomes an obstacle rather than a
+    record of it. History belongs in the commit message and the RFC, not
+    in a test that compiles.
+  - Silence is worth asserting only when the absence is itself the
+    contract a caller reads -- a security property, or a guarantee the
+    API makes by not doing something. Such a test is worth writing
+    whether or not anything was ever removed, and it is a different
+    concern from this one: do not let removing a feature look like the
+    occasion for it.
+  - What replaces it is the natural test of the new behaviour, which
+    usually already exists: the input the feature handled now flows to
+    the ordinary path, so a test of that path covers it. If nothing
+    covers the input at all, that gap is the finding -- add the positive
+    test, not an assertion that the old handling is gone.
 
 ## API design
 
