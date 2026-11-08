@@ -61,6 +61,32 @@ creating a crate and when reviewing an existing one.
     binary, the library root gets `warn(missing_docs)` and the binary
     root omits it; both get the `unsafe_code` attribute.
 
+## Package contents
+
+List what the crate ships with `include`; do not enumerate what it
+leaves out with `exclude`.
+
+```toml
+include = ["Cargo.toml", "LICENSE*", "README.md", "examples/**/*.rs", "src/**/*.rs"]
+```
+
+- `exclude` names the things that must not ship, so every new heavy
+  directory or layout change needs a matching edit, and a path nobody
+  thought of leaks into the package. `include` inverts the default:
+  anything new stays out until it is named.
+- It also keeps repository-only files out of the published crate
+  (`.cargo/config.toml`, `.gitignore`) without listing them, and keeps
+  a crate in a monorepo from pulling in files of its sibling crates.
+- Do not include `tests/`. A test is not information a user of the
+  crate acts on; what a user needs belongs in the doc comments and in
+  `examples/`. Leaving `tests/` out also means heavy fixtures cost
+  nothing at publish time.
+- Leave the files Cargo decides for itself to Cargo. `Cargo.lock` and
+  `.cargo_vcs_info.json` land in the package according to the crate
+  type (a binary ships its lock, a library does not), so do not chase
+  them with an `include` or `exclude` entry. `cargo package --list`
+  shows the result.
+
 ## Cargo config
 
 For repositories worked on by an agent, add a repository-level
