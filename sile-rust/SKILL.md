@@ -67,7 +67,7 @@ List what the crate ships with `include`; do not enumerate what it
 leaves out with `exclude`.
 
 ```toml
-include = ["Cargo.toml", "LICENSE*", "README.md", "examples/**/*.rs", "src/**/*.rs"]
+include = ["Cargo.toml", "LICENSE*", "README.md", "examples/**/*.rs", "src/**/*.rs", "tests/**/*.rs"]
 ```
 
 - `exclude` names the things that must not ship, so every new heavy
@@ -77,10 +77,15 @@ include = ["Cargo.toml", "LICENSE*", "README.md", "examples/**/*.rs", "src/**/*.
 - It also keeps repository-only files out of the published crate
   (`.cargo/config.toml`, `.gitignore`) without listing them, and keeps
   a crate in a monorepo from pulling in files of its sibling crates.
-- Do not include `tests/`. A test is not information a user of the
-  crate acts on; what a user needs belongs in the doc comments and in
-  `examples/`. Leaving `tests/` out also means heavy fixtures cost
-  nothing at publish time.
+- Include `tests/`, but as `tests/**/*.rs`, not as `tests/`. Leave the
+  tests out of `include` and `cargo publish` warns that they are being
+  left out, and a warning left in the output teaches a reader to skim
+  past warnings. A test is not information a user acts on, so what a
+  user needs still belongs in the doc comments and in `examples/`; the
+  tests go along for the cost of a few KiB.
+- The `*.rs` glob also settles fixtures: a test input that is not a
+  `.rs` file stays out of the package whatever its size, so a heavy one
+  needs no layout of its own.
 - Leave the files Cargo decides for itself to Cargo. `Cargo.lock` and
   `.cargo_vcs_info.json` land in the package according to the crate
   type (a binary ships its lock, a library does not), so do not chase
