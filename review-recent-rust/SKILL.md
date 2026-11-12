@@ -16,11 +16,19 @@ relative to its MSRV, and whether raising MSRV would unlock enough
 that applies to *this* code. Do not edit files, run `cargo fix`,
 change `rust-version`, or migrate edition.
 
+A release can change which code compiles and not only which APIs
+exist. Rust 1.100 did: the never type fallback became `!` in every
+edition. "Compiles on the old MSRV" therefore does not mean
+"compiles on both".
+
 Read [catalog.md](catalog.md) after resolving MSRV.
 
 ## Out of scope
 
 - Nightly, `#![feature(...)]`, or unsafe replacements
+- Cargo resolution policy (min-publish-age), Cargo lint config, or
+  build-directory layout. These are manifest and tooling settings,
+  not patterns in this crate's code
 - Re-checking sile-rust rules (`expect`, imports, Project defaults,
   `missing_docs`, folding lints into Cargo.toml)
 - General quality review, fashionable crate swaps, or listing new
@@ -86,6 +94,11 @@ End with **Keep vs bump**:
 - Suggest considering a bump to *X.Y* only when several findings
   that matter here cluster at that version (cite them)
 - If CI already uses *X.Y* or newer, say so
+- A bump must also build on the old toolchain. When a release
+  changed inference instead of adding API, as the `!` fallback did
+  in 1.100, a finding can require a source edit just to keep the
+  crate compiling on both versions; say so rather than calling the
+  bump free
 
 Do not write "this would be more modern" without a concrete pattern
 in this tree. Nested `if let` that is already clear is a judgment
