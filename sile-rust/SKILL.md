@@ -67,9 +67,11 @@ List what the crate ships with `include`; do not enumerate what it
 leaves out with `exclude`.
 
 ```toml
-include = ["Cargo.toml", "LICENSE*", "README.md", "examples/**/*.rs", "src/**/*.rs", "tests/**/*.rs"]
+include = ["/Cargo.toml", "/LICENSE*", "/README.md", "/examples/**/*.rs", "/src/**/*.rs", "/tests/**/*.rs"]
 ```
 
+- Start every entry with `/`. Without it a pattern matches at any depth,
+  so `"README.md"` is every README in the tree, not the one at the root.
 - `exclude` names the things that must not ship, so every new heavy
   directory or layout change needs a matching edit, and a path nobody
   thought of leaks into the package. `include` inverts the default:
